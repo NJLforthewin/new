@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using Hotel_Management_System.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
@@ -20,6 +20,12 @@ namespace Hotel_Management_System.Controllers
 
         public IActionResult Index()
         {
+            if (User.Identity == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Access");
+            }
+
+            ViewData["Title"] = "Dashboard";
             return View();
         }
 

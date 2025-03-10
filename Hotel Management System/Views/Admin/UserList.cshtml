@@ -1,0 +1,35 @@
+﻿@model List<Hotel_Management_System.Models.User>
+
+<h2>User Management</h2>
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div style="color: red;">
+        @TempData["ErrorMessage"]
+    </div>
+}
+
+<table border="1">
+    <tr>
+        <th>Email</th>
+        <th>Role</th>
+        <th>Action</th>
+    </tr>
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>@user.Role</td>
+            <td>
+                @if (user.Role != "Admin")
+                {
+                    <a href="@Url.Action("PromoteToAdmin", "Admin", new { userId = user.UserId })">Make Admin</a>
+                }
+                else
+                {
+                    <a href="@Url.Action("DemoteToGuest", "Admin", new { userId = user.UserId })">Make Guest</a>
+                }
+            </td>
+        </tr>
+    }
+</table>

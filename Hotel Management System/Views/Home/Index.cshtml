@@ -5,66 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nuxus Hotel - Rooms</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Arial', sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-        }
-
-        .navbar {
-            background-color: #800080;
-        }
-
-        .navbar-brand, .nav-link {
-            color: #fff !important;
-        }
-
-        .room-section {
-            padding: 20px;
-            background-color: #fff;
-            margin: 20px 0;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-            .room-section img {
-                width: 100%;
-                height: 200px; /* Fixed height for consistency */
-                object-fit: cover; /* Ensures images fill the container */
-                border-radius: 10px;
-                transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
-            }
-
-                .room-section img:hover {
-                    transform: scale(1.05); /* Slightly enlarge on hover */
-                    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
-                }
-
-        .btn-primary {
-            background-color: #800080;
-            border: none;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-            .btn-primary:hover {
-                background-color: #6a006a;
-            }
-
-        h3 {
-            margin-top: 15px;
-            font-size: 1.5rem;
-            color: #800080;
-        }
-
-        p {
-            font-size: 1rem;
-            color: #555;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/site.css">
 </head>
-<body>
+<body class="index-body">
+
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Nuxus Hotel</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,19 +40,16 @@
                 <div class="col-md-4">
                     <img src="/images/delux1.jpg" alt="Deluxe 1 Room">
                     <h3>Deluxe 1 Room</h3>
-                    
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/delux2.jpg" alt="Deluxe 2 Room">
                     <h3>Deluxe 2 Room</h3>
-                   
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/delux3.jpg" alt="Deluxe 3 Room">
                     <h3>Deluxe 3 Room</h3>
-                    
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
             </div>
@@ -121,19 +62,16 @@
                 <div class="col-md-4">
                     <img src="/images/double.jpg" alt="Double Room">
                     <h3>Double Room</h3>
-                    
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/single.jpg" alt="Single Room">
                     <h3>Single Room</h3>
-                    
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/standard.jpg" alt="Standard Room">
                     <h3>Standard Room</h3>
-                    
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
             </div>
@@ -145,24 +83,21 @@
                 <div class="col-md-4">
                     <img src="/images/triple.jpg" alt="Double Room">
                     <h3>Triple Room</h3>
-
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/triple2.jpg" alt="Single Room">
                     <h3>Triple Room</h3>
-
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
                 <div class="col-md-4">
                     <img src="/images/triple3.jpg" alt="Standard Room">
                     <h3>Triple Room</h3>
-
                     <a href="#" class="btn btn-primary">Book Now</a>
                 </div>
             </div>
         </div>
-
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>

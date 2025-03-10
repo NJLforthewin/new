@@ -1,0 +1,11 @@
+﻿@{
+    Layout = "~/Views/Shared/FrontDeskLayout.cshtml";
+}
+
+<h1>Welcome, @(User.Identity?.Name ?? "Guest")</h1>
+<p>You are logged in as Front Desk staff.</p>
+
+<!-- Add relevant actions for Front Desk -->
+<a asp-action="CheckInGuests" asp-controller="FrontDesk" class="btn btn-success">Check-In Guests</a>
+<a asp-action="CheckOutGuests" asp-controller="FrontDesk" class="btn btn-warning">Check-Out Guests</a>
+<a asp-action="ViewReservations" asp-controller="FrontDesk" class="btn btn-info">View Reservations</a>

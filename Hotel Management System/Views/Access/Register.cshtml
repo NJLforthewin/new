@@ -1,4 +1,4 @@
-﻿@model Hotel_Management_System.Models.User
+﻿@model Hotel_Management_System.Models.VMRegister
 
 @{
     Layout = null;
@@ -9,124 +9,41 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        /* Body and Background */
-        body {
-            margin: 0;
-            padding: 0;
-            background-image: url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1932&q=80');
-            background-size: cover;
-            background-position: center;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Login Box */
-        #login-box {
-            background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        /* Hotel Logo and Name */
-        .hotel-branding {
-            margin-bottom: 20px;
-        }
-
-        .hotel-logo {
-            width: 80px; /* Adjust size as needed */
-            height: 80px;
-            margin-bottom: 10px;
-        }
-
-        .hotel-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #800080; /* Purple color */
-        }
-
-        /* Form Styling */
-        h3 {
-            color: #800080;
-            margin-bottom: 20px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-            text-align: left;
-        }
-
-        .form-control {
-            border-radius: 5px;
-            border: 1px solid #ced4da;
-            padding: 10px;
-            width: 100%;
-        }
-
-        .btn-info {
-            background-color: #800080;
-            border: none;
-            border-radius: 5px;
-            padding: 10px 20px;
-            color: white;
-            width: 100%;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-            .btn-info:hover {
-                background-color: #6a006a; /* Darker purple on hover */
-            }
-
-        .error-message {
-            color: red;
-            font-size: 14px;
-            margin-top: 10px;
-        }
-    </style>
+    <link rel="stylesheet" href="~/css/site.css">
 </head>
-<body>
+<body class="register-body">
 
-    <!-- Login Box -->
-    <div id="login-box">
+    <!-- Register Box -->
+    <div id="register-box">
         <!-- Hotel Branding -->
         <div class="hotel-branding">
-            <img src="/images/hotel-logo.png" alt="Hotel Logo" class="hotel-logo"> <!-- Replace with your logo path -->
-            <div class="hotel-name">Nuxus Hotel</div> <!-- Replace with your hotel name -->
+            <img src="/images/hotel-logo.png" alt="Hotel Logo" class="hotel-logo">
+            <div class="hotel-name">Nuxus Hotel</div>
         </div>
 
         <!-- Register Form -->
         @using (Html.BeginForm("Register", "Access", FormMethod.Post))
         {
             <div class="form-group">
-                <label for="FirstName">First Name:</label>
-                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", @placeholder = "Enter your first name", required = "required" })
+                <label for="firstName">First Name:</label>
+                @Html.TextBoxFor(m => m.FirstName, new { @class = "form-control", @placeholder = "Enter your first name", @required = true })
             </div>
             <div class="form-group">
-                <label for="LastName">Last Name:</label>
-                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @placeholder = "Enter your last name", required = "required" })
+                <label for="lastName">Last Name:</label>
+                @Html.TextBoxFor(m => m.LastName, new { @class = "form-control", @placeholder = "Enter your last name", @required = true })
             </div>
             <div class="form-group">
-                <label for="Email">Email:</label>
-                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Enter your email", required = "required", type = "email" })
+                <label for="email">Email:</label>
+                @Html.TextBoxFor(m => m.Email, new { @class = "form-control", @placeholder = "Enter your email", @required = true })
             </div>
             <div class="form-group">
-                <label for="PasswordHash">Password:</label>
-                @Html.PasswordFor(m => m.PasswordHash, new { @class = "form-control", @placeholder = "Enter your password", required = "required" })
+                <label for="password">Password:</label>
+                @Html.PasswordFor(m => m.Password, new { @class = "form-control", @placeholder = "Enter your password", @required = true })
             </div>
             <div class="form-group">
                 <input type="submit" name="submit" class="btn btn-info" value="Register">
             </div>
 
-            <p>Already have an account? <a href="@Url.Action("Login", "Access")">Login here</a>.</p>
             @if (ViewData["ValidateMessage"] != null)
             {
                 <div class="error-message">

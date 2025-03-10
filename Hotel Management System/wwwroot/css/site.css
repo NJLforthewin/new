@@ -63,3 +63,230 @@ h3 {
     line-height: 60px;
     background-color: #0000ff;
 }
+
+/* Body and Background */
+.login-body {
+    margin: 0;
+    padding: 0;
+    background-image: url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D&auto=format&fit=crop&w=1932&q=80');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Login Box */
+#login-box {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Hotel Logo and Name */
+.hotel-branding {
+    margin-bottom: 20px;
+}
+
+.hotel-logo {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.hotel-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #800080; /* Purple color */
+}
+
+/* Form Styling */
+h3 {
+    color: #800080;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    width: 100%;
+}
+
+.btn-info {
+    background-color: #800080;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    color: white;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-info:hover {
+        background-color: #6a006a; /* Darker purple on hover */
+    }
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+/* Body and Background */
+.register-body {
+    margin: 0;
+    padding: 0;
+    background-image: url('https://images.unsplash.com/photo-1564501049412-61c2a3083791?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D&auto=format&fit=crop&w=1932&q=80');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: Arial, sans-serif;
+}
+
+/* Register Box */
+#register-box {
+    background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    max-width: 400px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Hotel Logo and Name */
+.hotel-branding {
+    margin-bottom: 20px;
+}
+
+.hotel-logo {
+    width: 80px; /* Adjust size as needed */
+    height: 80px;
+    margin-bottom: 10px;
+}
+
+.hotel-name {
+    font-size: 24px;
+    font-weight: bold;
+    color: #800080; /* Purple color */
+}
+
+/* Form Styling */
+h3 {
+    color: #800080;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    padding: 10px;
+    width: 100%;
+}
+
+.btn-info {
+    background-color: #800080;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    color: white;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-info:hover {
+        background-color: #6a006a; /* Darker purple on hover */
+    }
+
+.error-message {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+
+/* Body and General Styles */
+.index-body {
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+/* Navbar */
+.navbar {
+    background-color: #800080;
+}
+
+.navbar-brand, .nav-link {
+    color: #fff !important;
+}
+
+/* Room Sections */
+.room-section {
+    padding: 20px;
+    background-color: #fff;
+    margin: 20px 0;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+    .room-section img {
+        width: 100%;
+        height: 200px; /* Fixed height for consistency */
+        object-fit: cover; /* Ensures images fill the container */
+        border-radius: 10px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Smooth hover effect */
+    }
+
+        .room-section img:hover {
+            transform: scale(1.05); /* Slightly enlarge on hover */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2); /* Add shadow on hover */
+        }
+
+/* Buttons */
+.btn-primary {
+    background-color: #800080;
+    border: none;
+    width: 100%;
+    margin-top: 10px;
+}
+
+    .btn-primary:hover {
+        background-color: #6a006a;
+    }
+
+/* Headings */
+h3 {
+    margin-top: 15px;
+    font-size: 1.5rem;
+    color: #800080;
+}
+
+p {
+    font-size: 1rem;
+    color: #555;
+}

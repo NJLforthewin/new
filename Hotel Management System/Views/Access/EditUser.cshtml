@@ -1,0 +1,28 @@
+﻿@model Hotel_Management_System.Models.User
+
+<h2>Edit User</h2>
+<form asp-action="EditUser" method="post">
+    <input type="hidden" asp-for="UserId" />
+    <div class="form-group">
+        <label>First Name</label>
+        <input asp-for="FirstName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Last Name</label>
+        <input asp-for="LastName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Email</label>
+        <input asp-for="Email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label>Role</label>
+        <select asp-for="Role" class="form-control">
+            <option value="Admin">Admin</option>
+            <option value="FrontDesk">FrontDesk</option>
+            <option value="Housekeeping">Housekeeping</option>
+            <option value="Guest">Guest</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-success">Save Changes</button>
+</form>

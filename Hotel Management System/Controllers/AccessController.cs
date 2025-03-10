@@ -5,62 +5,22 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Hotel_Management_System.Models;
 using System.Threading.Tasks;
 using System.Linq;
-using BCrypt.Net;
+using static BCrypt.Net.BCrypt;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authorization;
+using Hotel_Management_System.Helpers;
 
 namespace Hotel_Management_System.Controllers
 {
-    public class AccessController : Controller
+    public class AccessController(HotelManagementDbContext context, ILogger<AccessController> logger) : Controller
     {
-        private readonly HotelManagementDbContext _context;
-        private readonly ILogger<AccessController> _logger;
-
-        public AccessController(HotelManagementDbContext context, ILogger<AccessController> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
-
-        // GET: Access/Register
-        [AllowAnonymous]
-        public IActionResult Register()
-        {
-            return View();
-        }
-
-        // POST: Access/Register
-        [AllowAnonymous]
-        [HttpPost]
-        public IActionResult Register(User user)
-        {
-            if (ModelState.IsValid)
-            {
-                // Check if the email is already registered
-                var existingUser = _context.Users.FirstOrDefault(u => u.Email == user.Email);
-                if (existingUser != null)
-                {
-                    ModelState.AddModelError("Email", "Email is already registered.");
-                    return View(user);
-                }
-
-                // Hash the password using BCrypt
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(user.PasswordHash);
-
-                // Add the user to the database
-                _context.Users.Add(user);
-                _context.SaveChanges();
-
-                return RedirectToAction("Login");
-            }
-            return View(user);
-        }
+        private readonly HotelManagementDbContext _context = context;
+        private readonly ILogger<AccessController> _logger = logger;
 
         // GET: Access/Login
         [AllowAnonymous]
         public IActionResult Login()
         {
-            // If the user is already authenticated, redirect to the home page
             if (HttpContext.User.Identity != null && HttpContext.User.Identity.IsAuthenticated)
                 return RedirectToAction("Index", "Home");
 
@@ -74,24 +34,22 @@ namespace Hotel_Management_System.Controllers
         {
             if (ModelState.IsValid)
             {
-                // Find the user by email
                 var user = _context.Users.FirstOrDefault(u => u.Email == modelLogin.Email);
 
                 if (user != null)
                 {
-                    // Verify the password
-                    var isPasswordValid = BCrypt.Net.BCrypt.Verify(modelLogin.Password, user.PasswordHash);
+                    // Use PasswordHelper to verify password
+                    bool isPasswordValid = PasswordHelper.VerifyPassword(modelLogin.Password, user.PasswordHash);
+
                     if (isPasswordValid)
                     {
-                        // Create claims for the authenticated user
                         var claims = new List<Claim>
                         {
-                            new Claim(ClaimTypes.NameIdentifier, user.Email),
-                            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                            new Claim("OtherProperties", "ExampleRole")
+                            new(ClaimTypes.NameIdentifier, user.Email),
+                            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                            new(ClaimTypes.Role, user.Role)
                         };
 
-                        // Create the identity and principal
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
                         var authProperties = new AuthenticationProperties
                         {
@@ -99,24 +57,26 @@ namespace Hotel_Management_System.Controllers
                             IsPersistent = modelLogin.RememberMe
                         };
 
-                        // Sign in the user
                         await HttpContext.SignInAsync(
                             CookieAuthenticationDefaults.AuthenticationScheme,
                             new ClaimsPrincipal(claimsIdentity),
                             authProperties);
 
-                        return RedirectToAction("Index", "Home");
+                        return user.Role switch
+                        {
+                            "Admin" => RedirectToAction("Dashboard", "Admin"),
+                            "FrontDesk" => RedirectToAction("Dashboard", "FrontDesk"),
+                            _ => RedirectToAction("Index", "Home")
+                        };
                     }
                     else
                     {
-                        // Log invalid password
                         _logger.LogWarning("Invalid password for user: {Email}", modelLogin.Email);
                         ViewData["ValidateMessage"] = "Invalid email or password.";
                     }
                 }
                 else
                 {
-                    // Log user not found
                     _logger.LogWarning("User not found: {Email}", modelLogin.Email);
                     ViewData["ValidateMessage"] = "Invalid email or password.";
                 }
@@ -125,10 +85,57 @@ namespace Hotel_Management_System.Controllers
             return View(modelLogin);
         }
 
+        // Add the GET: Access/Register method in AccessController
+        [AllowAnonymous]
+        public IActionResult Register()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public IActionResult Register(VMRegister model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingUser = _context.Users.FirstOrDefault(u => u.Email == model.Email);
+                if (existingUser != null)
+                {
+                    ModelState.AddModelError("Email", "Email is already registered.");
+                    return View(model);
+                }
+
+                // Hash the password before saving
+                string hashedPassword = PasswordHelper.HashPassword(model.Password);
+
+                // Check how many admins exist in the database
+                int adminCount = _context.Users.Count(u => u.Role == "Admin");
+
+                // Allow only 4 admins; others become guests
+                string assignedRole = (adminCount < 4) ? "Admin" : "Guest";
+
+                var user = new User
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    Email = model.Email,
+                    PasswordHash = hashedPassword, // Store hashed password
+                    Role = assignedRole,
+                    CreatedAt = DateTime.UtcNow
+                };
+
+                _context.Users.Add(user);
+                _context.SaveChanges();
+
+                return RedirectToAction("Login");
+            }
+            return View(model);
+        }
+
+
         // POST: Access/Logout
         public async Task<IActionResult> Logout()
         {
-            // Sign out the user
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
             return RedirectToAction("Login");
         }
