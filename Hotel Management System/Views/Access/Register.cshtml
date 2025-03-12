@@ -44,6 +44,7 @@
                 <input type="submit" name="submit" class="btn btn-info" value="Register">
             </div>
 
+            <p>Have an account already? <a href="@Url.Action("Login", "Access")">Login</a>.</p>
             @if (ViewData["ValidateMessage"] != null)
             {
                 <div class="error-message">

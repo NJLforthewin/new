@@ -70,5 +70,58 @@ namespace Hotel_Management_System.Controllers
 
             return RedirectToAction("UserList");
         }
+
+        // Create Front Desk & Housekeeping Accounts
+        public IActionResult CreateUser()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult CreateUser(string firstName, string lastName, string email, string password, string role)
+        {
+            if (role != "FrontDesk" && role != "Housekeeping")
+            {
+                TempData["ErrorMessage"] = "Invalid role selection!";
+                return RedirectToAction("UserList");
+            }
+
+            var newUser = new User
+            {
+                FirstName = firstName,
+                LastName = lastName,
+                Email = email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(password),
+                Role = role,
+                CreatedAt = DateTime.Now
+            };
+
+            _context.Users.Add(newUser);
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "User created successfully!";
+            return RedirectToAction("UserList");
+        }
+
+        // Delete a User
+        public IActionResult DeleteUser(int userId)
+        {
+            var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
+            if (user != null)
+            {
+                _context.Users.Remove(user);
+                _context.SaveChanges();
+                TempData["SuccessMessage"] = "User deleted successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "User not found!";
+            }
+
+            return RedirectToAction("UserList");
+        }
+
+
+
     }
 }

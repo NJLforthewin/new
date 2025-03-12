@@ -1,35 +1,70 @@
-﻿@model List<Hotel_Management_System.Models.User>
+﻿@{
+    Layout = "~/Views/Shared/AdminLayout.cshtml";
+}
+
+@model List<Hotel_Management_System.Models.User>
 
 <h2>User Management</h2>
 
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 @if (TempData["ErrorMessage"] != null)
 {
-    <div style="color: red;">
-        @TempData["ErrorMessage"]
-    </div>
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
 }
 
-<table border="1">
-    <tr>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Action</th>
-    </tr>
-    @foreach (var user in Model)
-    {
+<form method="post" action="@Url.Action("CreateUser", "Admin")">
+    <div class="form-group">
+        <label for="firstName">First Name</label>
+        <input type="text" name="firstName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="lastName">Last Name</label>
+        <input type="text" name="lastName" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" name="password" class="form-control" required />
+    </div>
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select name="role" class="form-control" required>
+            <option value="FrontDesk">Front Desk</option>
+            <option value="Housekeeping">Housekeeping</option>
+        </select>
+    </div>
+    <button type="submit" class="btn btn-primary">Create User</button>
+</form>
+
+<h3>Existing Users</h3>
+<table class="table">
+    <thead>
         <tr>
-            <td>@user.Email</td>
-            <td>@user.Role</td>
-            <td>
-                @if (user.Role != "Admin")
-                {
-                    <a href="@Url.Action("PromoteToAdmin", "Admin", new { userId = user.UserId })">Make Admin</a>
-                }
-                else
-                {
-                    <a href="@Url.Action("DemoteToGuest", "Admin", new { userId = user.UserId })">Make Guest</a>
-                }
-            </td>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
         </tr>
-    }
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FirstName @user.LastName</td>
+                <td>@user.Email</td>
+                <td>@user.Role</td>
+                <td>
+                    <a href="@Url.Action("PromoteToAdmin", "Admin", new { userId = user.UserId })" class="btn btn-success">Promote</a>
+                    <a href="@Url.Action("DemoteToGuest", "Admin", new { userId = user.UserId })" class="btn btn-warning">Demote</a>
+                    <a href="@Url.Action("DeleteUser", "Admin", new { userId = user.UserId })" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user?');">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
 </table>

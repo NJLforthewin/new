@@ -1,0 +1,54 @@
+﻿@model Hotel_Management_System.Models.Booking
+
+<h2>Book a Room</h2>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="GuestName">Guest Name</label>
+        <input asp-for="GuestName" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" type="email" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="PhoneNumber">Phone Number</label>
+        <input asp-for="PhoneNumber" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="RoomId">Select Room</label>
+        <select asp-for="RoomId" class="form-control" required>
+            @foreach (var room in ViewBag.Rooms)
+            {
+                <option value="@room.RoomId">@room.RoomNumber - @room.Category</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CheckInDate">Check-in Date</label>
+        <input asp-for="CheckInDate" type="date" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CheckOutDate">Check-out Date</label>
+        <input asp-for="CheckOutDate" type="date" class="form-control" required />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="TotalPrice">Total Price</label>
+        <input asp-for="TotalPrice" type="number" step="0.01" class="form-control" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Booking</button>
+</form>

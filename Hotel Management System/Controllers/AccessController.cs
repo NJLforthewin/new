@@ -66,6 +66,7 @@ namespace Hotel_Management_System.Controllers
                         {
                             "Admin" => RedirectToAction("Dashboard", "Admin"),
                             "FrontDesk" => RedirectToAction("Dashboard", "FrontDesk"),
+                            "Housekeeping" => RedirectToAction("Dashboard", "Housekeeping"),
                             _ => RedirectToAction("Index", "Home")
                         };
                     }
@@ -85,7 +86,6 @@ namespace Hotel_Management_System.Controllers
             return View(modelLogin);
         }
 
-        // Add the GET: Access/Register method in AccessController
         [AllowAnonymous]
         public IActionResult Register()
         {
@@ -131,7 +131,6 @@ namespace Hotel_Management_System.Controllers
             }
             return View(model);
         }
-
 
         // POST: Access/Logout
         public async Task<IActionResult> Logout()
