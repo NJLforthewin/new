@@ -33,6 +33,11 @@ namespace Hotel_Management_System.Controllers
         {
             if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    Console.WriteLine(error.ErrorMessage); // Log validation errors
+                }
+
                 ViewBag.Rooms = _context.Rooms.ToList();
                 ViewBag.RoomPrices = _context.Rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
                 return View(booking);
@@ -62,11 +67,12 @@ namespace Hotel_Management_System.Controllers
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            Console.WriteLine("BookingController: Create method executed.");
+            Console.WriteLine("Booking saved successfully.");
 
             TempData["SuccessMessage"] = "Booking submitted and is now pending confirmation.";
             return RedirectToAction("DashboardBooking");
         }
+
 
 
         private static decimal CalculateTotalPrice(decimal pricePerNight, DateTime checkInDate, DateTime checkOutDate)

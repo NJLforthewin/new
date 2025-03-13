@@ -1,37 +1,35 @@
 ﻿document.addEventListener("DOMContentLoaded", function () {
-    let roomSelect = document.getElementById("RoomId");
-    let checkIn = document.getElementById("CheckInDate");
-    let checkOut = document.getElementById("CheckOutDate");
-    let pricePerNightField = document.getElementById("PricePerNight");
-    let totalPriceField = document.getElementById("TotalPrice");
+    var roomSelect = document.getElementById("RoomId");
+    var priceInput = document.getElementById("PricePerNight");
+    var totalPriceInput = document.getElementById("TotalPrice");
+    var checkInInput = document.getElementById("CheckInDate");
+    var checkOutInput = document.getElementById("CheckOutDate");
 
-    // Load room prices dynamically from ViewBag
-    let roomPrices = JSON.parse(document.getElementById("RoomPricesData").textContent);
+    var roomPrices = JSON.parse(document.getElementById("RoomPricesData").textContent);
 
-    function updateRoomPrice() {
-        let roomId = roomSelect.value;
-        if (roomId && roomPrices[roomId]) {
-            pricePerNightField.value = roomPrices[roomId];
+    function updatePrice() {
+        var selectedRoomId = roomSelect.value;
+        if (selectedRoomId && roomPrices[selectedRoomId]) {
+            priceInput.value = roomPrices[selectedRoomId];
+            calculateTotalPrice();
         } else {
-            pricePerNightField.value = "";
-        }
-        calculateTotal();
-    }
-
-    function calculateTotal() {
-        let pricePerNight = parseFloat(pricePerNightField.value);
-        let startDate = new Date(checkIn.value);
-        let endDate = new Date(checkOut.value);
-
-        if (!isNaN(pricePerNight) && checkIn.value && checkOut.value) {
-            let days = (endDate - startDate) / (1000 * 60 * 60 * 24);
-            totalPriceField.value = days > 0 ? (days * pricePerNight).toFixed(2) : "0.00";
-        } else {
-            totalPriceField.value = "";
+            priceInput.value = "";
+            totalPriceInput.value = "";
         }
     }
 
-    roomSelect.addEventListener("change", updateRoomPrice);
-    checkIn.addEventListener("change", calculateTotal);
-    checkOut.addEventListener("change", calculateTotal);
+    function calculateTotalPrice() {
+        var checkInDate = new Date(checkInInput.value);
+        var checkOutDate = new Date(checkOutInput.value);
+        if (checkInDate && checkOutDate && checkOutDate > checkInDate) {
+            var totalDays = (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24);
+            totalPriceInput.value = (totalDays * parseFloat(priceInput.value)).toFixed(2);
+        } else {
+            totalPriceInput.value = "";
+        }
+    }
+
+    roomSelect.addEventListener("change", updatePrice);
+    checkInInput.addEventListener("change", calculateTotalPrice);
+    checkOutInput.addEventListener("change", calculateTotalPrice);
 });

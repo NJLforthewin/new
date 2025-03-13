@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using Hotel_Management_System.Models;
-using Microsoft.EntityFrameworkCore; // Added for .Include()
+using Microsoft.EntityFrameworkCore; 
 using System.Linq;
 
 namespace Hotel_Management_System.Controllers
