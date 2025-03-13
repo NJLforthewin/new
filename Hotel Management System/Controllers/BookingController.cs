@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 
 namespace Hotel_Management_System.Controllers
 {
+    [Authorize(Roles = "Admin, FrontDesk")]
     public class BookingController : Controller
     {
         private readonly HotelManagementDbContext _context;
@@ -26,18 +27,12 @@ namespace Hotel_Management_System.Controllers
             return View();
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Booking booking)
         {
             if (!ModelState.IsValid)
             {
-                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-                {
-                    Console.WriteLine(error.ErrorMessage); // Log validation errors
-                }
-
                 ViewBag.Rooms = _context.Rooms.ToList();
                 ViewBag.RoomPrices = _context.Rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
                 return View(booking);
@@ -52,7 +47,7 @@ namespace Hotel_Management_System.Controllers
                 return View(booking);
             }
 
-            if (booking.CheckInDate == default || booking.CheckOutDate == default || booking.CheckInDate >= booking.CheckOutDate)
+            if (booking.CheckInDate >= booking.CheckOutDate)
             {
                 ModelState.AddModelError("", "Check-in date must be before Check-out date.");
                 ViewBag.Rooms = _context.Rooms.ToList();
@@ -67,13 +62,9 @@ namespace Hotel_Management_System.Controllers
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            Console.WriteLine("Booking saved successfully.");
-
             TempData["SuccessMessage"] = "Booking submitted and is now pending confirmation.";
-            return RedirectToAction("DashboardBooking");
+            return RedirectToAction("Index", "Home");
         }
-
-
 
         private static decimal CalculateTotalPrice(decimal pricePerNight, DateTime checkInDate, DateTime checkOutDate)
         {
@@ -81,15 +72,13 @@ namespace Hotel_Management_System.Controllers
             return totalDays > 0 ? pricePerNight * totalDays : pricePerNight;
         }
 
-        [Authorize(Roles = "Admin,FrontDesk")]
         public IActionResult DashboardBooking()
         {
             var bookings = _context.Bookings.Include(b => b.Room).ToList();
-            return View("DashboardBooking", bookings);
+            return RedirectToAction("Dashboard", "FrontDesk");
         }
 
         [HttpPost]
-        [Authorize(Roles = "FrontDesk")]
         public IActionResult ConfirmBooking(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
@@ -99,21 +88,60 @@ namespace Hotel_Management_System.Controllers
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking confirmed!";
-            return RedirectToAction("DashboardBooking");
+            return RedirectToAction("Dashboard", "FrontDesk");
         }
 
         [HttpPost]
-        [Authorize(Roles = "FrontDesk")]
         public IActionResult CancelBooking(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
             if (booking == null) return NotFound();
 
-            booking.Status = "Pending"; // Revert to pending instead of deleting
+            booking.Status = "Pending";
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking status reverted to Pending.";
-            return RedirectToAction("DashboardBooking");
+            return RedirectToAction("Dashboard", "FrontDesk");
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmCheckIn(int bookingId)
+        {
+            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking == null || booking.Status != "Confirmed")
+                return NotFound();
+
+            booking.Status = "Checked-In";
+            booking.CheckedInAt = DateTime.Now;
+
+            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
+            if (room != null)
+                room.Status = "Occupied";
+
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Guest has been checked in successfully!";
+            return RedirectToAction("Dashboard", "FrontDesk");
+        }
+
+        [HttpPost]
+        public IActionResult ConfirmCheckOut(int bookingId)
+        {
+            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking == null || booking.Status != "Checked-In")
+                return NotFound();
+
+            booking.Status = "Checked-Out";
+            booking.CheckedOutAt = DateTime.Now;
+
+            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
+            if (room != null)
+                room.Status = "Vacant";
+
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Guest has been checked out successfully!";
+            return RedirectToAction("Dashboard", "FrontDesk");
         }
     }
 }

@@ -9,31 +9,40 @@ namespace Hotel_Management_System.Models
         [Key]
         public int BookingId { get; set; }
 
-        [Required]
-        public required string GuestName { get; set; }
+        [Required(ErrorMessage = "Guest Name is required.")]
+        public string GuestName { get; set; } = string.Empty;
 
-        [Required]
-        public required string Email { get; set; }
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid email format.")]
+        public string Email { get; set; } = string.Empty;
 
-        [Required]
-        public required string PhoneNumber { get; set; }
+        [Required(ErrorMessage = "Phone Number is required.")]
+        [Phone(ErrorMessage = "Invalid phone number.")]
+        public string PhoneNumber { get; set; } = string.Empty;
 
-        [Required]
-        public int RoomId { get; set; }  // Foreign Key
+        [Required(ErrorMessage = "Room selection is required.")]
+        public int RoomId { get; set; }
 
         [ForeignKey("RoomId")]
-        public Room? Room { get; set; }  // Navigation Property
+        public Room? Room { get; set; } 
 
-        [Required]
+        [Required(ErrorMessage = "Check-in date is required.")]
+        [DataType(DataType.Date)]
         public DateTime CheckInDate { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Check-out date is required.")]
+        [DataType(DataType.Date)]
         public DateTime CheckOutDate { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
         public decimal TotalPrice { get; set; }
 
-        public string Status { get; set; } = "Pending"; // Default status
+        public string Status { get; set; } = "Pending";
+
+
+        public DateTime? CheckedInAt { get; set; } 
+        public DateTime? CheckedOutAt { get; set; }
+
     }
 }

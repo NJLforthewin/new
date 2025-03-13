@@ -14,24 +14,18 @@ namespace Hotel_Management_System.Controllers
         {
             _context = context;
         }
-
-        [Authorize(Roles = "FrontDesk")] 
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult Dashboard()
         {
             var bookings = _context.Bookings
                                    .Where(b => b.Status == "Pending")
                                    .ToList();
-
-            Console.WriteLine($"Pending Bookings Count: {bookings.Count}"); 
-
             return View("Dashboard", bookings);
         }
 
-
-        [Authorize(Roles = "FrontDesk")]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult Confirm(int bookingId)
         {
-
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
             if (booking != null && booking.Status == "Pending")
             {
@@ -42,7 +36,7 @@ namespace Hotel_Management_System.Controllers
             return RedirectToAction("Dashboard");
         }
 
-        [Authorize(Roles = "FrontDesk")]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult Cancel(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
@@ -56,3 +50,4 @@ namespace Hotel_Management_System.Controllers
         }
     }
 }
+

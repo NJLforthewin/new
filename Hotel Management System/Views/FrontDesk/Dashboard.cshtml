@@ -23,7 +23,7 @@
         {
             <tr>
                 <td>@booking.GuestName</td>
-                <td>@booking.Room.RoomNumber</td>
+                <td>@(booking.Room != null ? booking.Room.RoomNumber : "N/A")</td>
                 <td>@booking.CheckInDate.ToShortDateString()</td>
                 <td>@booking.CheckOutDate.ToShortDateString()</td>
                 <td>@booking.TotalPrice.ToString("C")</td>

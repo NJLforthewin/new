@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Hotel_Management_System.Controllers
 {
-    [Authorize(Roles = "Admin")] // Only Admins can access this controller
+    [Authorize(Roles = "Admin")] 
     public class AdminController : Controller
     {
         private readonly HotelManagementDbContext _context;
@@ -16,20 +16,17 @@ namespace Hotel_Management_System.Controllers
             _context = context;
         }
 
-        // ✅ Move Dashboard() inside the AdminController
         public IActionResult Dashboard()
         {
             return View();
         }
 
-        // GET: List all users
         public IActionResult UserList()
         {
             var users = _context.Users.ToList();
             return View(users);
         }
 
-        // Promote a user to Admin (only if there are fewer than 4 admins)
         public IActionResult PromoteToAdmin(int userId)
         {
             int adminCount = _context.Users.Count(u => u.Role == "Admin");
@@ -50,7 +47,6 @@ namespace Hotel_Management_System.Controllers
             return RedirectToAction("UserList");
         }
 
-        // Demote an Admin to Guest (only if there are more than 1 admin)
         public IActionResult DemoteToGuest(int userId)
         {
             int adminCount = _context.Users.Count(u => u.Role == "Admin");
@@ -71,7 +67,7 @@ namespace Hotel_Management_System.Controllers
             return RedirectToAction("UserList");
         }
 
-        // Create Front Desk & Housekeeping Accounts
+
         public IActionResult CreateUser()
         {
             return View();
@@ -103,7 +99,6 @@ namespace Hotel_Management_System.Controllers
             return RedirectToAction("UserList");
         }
 
-        // Delete a User
         public IActionResult DeleteUser(int userId)
         {
             var user = _context.Users.FirstOrDefault(u => u.UserId == userId);
