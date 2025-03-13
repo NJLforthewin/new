@@ -1,14 +1,17 @@
-﻿<!DOCTYPE html>
+﻿@{
+    ViewData["Title"] = "Nuxus Hotel - Dashboard";
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nuxus Hotel - Rooms</title>
+    <title>@ViewData["Title"]</title>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="~/css/site.css">
 </head>
 <body class="index-body">
-
     <nav class="navbar navbar-expand-lg navbar-dark">
         <a class="navbar-brand" href="#">Nuxus Hotel</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -17,7 +20,7 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-link" href="@Url.Action("Index", "Home")">Dashboard</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">Rooms</a>
@@ -33,76 +36,30 @@
         <h1 class="text-center my-4">Welcome to Nuxus Hotel</h1>
         <p class="text-center">Dear Guest, please explore our rooms and book your stay.</p>
 
-        <!-- Deluxe Rooms -->
         <div class="room-section">
-            <h2>Deluxe Rooms</h2>
+            <h2>Available Rooms</h2>
             <div class="row">
-                <div class="col-md-4">
-                    <img src="/images/delux1.jpg" alt="Deluxe 1 Room">
-                    <h3>Deluxe 1 Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/delux2.jpg" alt="Deluxe 2 Room">
-                    <h3>Deluxe 2 Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/delux3.jpg" alt="Deluxe 3 Room">
-                    <h3>Deluxe 3 Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-            </div>
-        </div>
-
-        <!-- Other Rooms -->
-        <div class="room-section">
-            <h2>Other Rooms</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <img src="/images/double.jpg" alt="Double Room">
-                    <h3>Double Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/single.jpg" alt="Single Room">
-                    <h3>Single Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/standard.jpg" alt="Standard Room">
-                    <h3>Standard Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-            </div>
-        </div>
-
-        <div class="room-section">
-            <h2>Triple Rooms</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <img src="/images/triple.jpg" alt="Double Room">
-                    <h3>Triple Room</h3>
-                    <<a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/triple2.jpg" alt="Single Room">
-                    <h3>Triple Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-
-                </div>
-                <div class="col-md-4">
-                    <img src="/images/triple3.jpg" alt="Standard Room">
-                    <h3>Triple Room</h3>
-                    <a href="@Url.Action("Create", "Booking")" class="btn btn-primary">Book Now</a>
-                </div>
+                @foreach (var room in Model)
+                {
+                    <div class="col-md-4">
+                        <div class="card mb-4">
+                            <img src="~/images/@(room.Category.ToLower()).jpg" class="card-img-top" alt="@room.Category Room">
+                            <div class="card-body">
+                                <h5 class="card-title">@room.Category Room (@room.RoomNumber)</h5>
+                                <p class="card-text">Price: $@room.PricePerNight per night</p>
+                                <p class="card-text">Status: @room.Status</p>
+                                @if (room.Status == "Available")
+                                {
+                                    <a href="@Url.Action("Create", "Booking", new { roomId = room.RoomId })" class="btn btn-primary">Book Now</a>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary" disabled>Not Available</button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
             </div>
         </div>
     </div>

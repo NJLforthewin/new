@@ -12,15 +12,17 @@ namespace Hotel_Management_System.Models
         [Required]
         public required string GuestName { get; set; }
 
-        [Required, EmailAddress]
+        [Required]
         public required string Email { get; set; }
 
-        [Phone]
-        public string? PhoneNumber { get; set; }
+        [Required]
+        public required string PhoneNumber { get; set; }
 
         [Required]
-        [ForeignKey("Room")]
-        public int RoomId { get; set; }
+        public int RoomId { get; set; }  // Foreign Key
+
+        [ForeignKey("RoomId")]
+        public Room? Room { get; set; }  // Navigation Property
 
         [Required]
         public DateTime CheckInDate { get; set; }
@@ -29,13 +31,9 @@ namespace Hotel_Management_System.Models
         public DateTime CheckOutDate { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")]
+        [Column(TypeName = "decimal(18,2)")]
         public decimal TotalPrice { get; set; }
 
-        [Required]
-        public required string Status { get; set; } // Pending, Confirmed, Cancelled
-
-        // Navigation property
-        public virtual Room? Room { get; set; }
+        public string Status { get; set; } = "Pending"; // Default status
     }
 }

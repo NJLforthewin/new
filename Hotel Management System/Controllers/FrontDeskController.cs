@@ -15,14 +15,14 @@ namespace Hotel_Management_System.Controllers
             _context = context;
         }
 
-        [Authorize(Roles = "FrontDesk")] // Only Front Desk can manage bookings
+        [Authorize(Roles = "FrontDesk")] 
         public IActionResult Dashboard()
         {
             var bookings = _context.Bookings
                                    .Where(b => b.Status == "Pending")
                                    .ToList();
 
-            Console.WriteLine($"Pending Bookings Count: {bookings.Count}"); // Debugging output
+            Console.WriteLine($"Pending Bookings Count: {bookings.Count}"); 
 
             return View("Dashboard", bookings);
         }

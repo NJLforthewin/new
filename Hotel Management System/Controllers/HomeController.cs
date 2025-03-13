@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace Hotel_Management_System.Controllers
 {
@@ -12,13 +14,15 @@ namespace Hotel_Management_System.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly HotelManagementDbContext _context;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, HotelManagementDbContext context)
         {
             _logger = logger;
+            _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (User.Identity == null || !User.Identity.IsAuthenticated)
             {
@@ -26,7 +30,14 @@ namespace Hotel_Management_System.Controllers
             }
 
             ViewData["Title"] = "Dashboard";
-            return View();
+
+            var rooms = await _context.Rooms.ToListAsync(); 
+            if (rooms == null || rooms.Count == 0)
+            {
+                ViewBag.NoRoomsMessage = "No available rooms at the moment.";
+            }
+
+            return View(rooms);
         }
 
         public IActionResult Privacy()
@@ -44,6 +55,11 @@ namespace Hotel_Management_System.Controllers
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+        }
+
+        public IActionResult Create()
+        {
+            return RedirectToAction("Create", "Booking");
         }
     }
 }

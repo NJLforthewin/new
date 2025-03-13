@@ -5,17 +5,23 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Hotel_Management_System.Models;
 using System.Threading.Tasks;
 using System.Linq;
-using static BCrypt.Net.BCrypt;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authorization;
 using Hotel_Management_System.Helpers;
+using System;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Hotel_Management_System.Controllers
 {
-    public class AccessController(HotelManagementDbContext context, ILogger<AccessController> logger) : Controller
+    public class AccessController : Controller
     {
-        private readonly HotelManagementDbContext _context = context;
-        private readonly ILogger<AccessController> _logger = logger;
+        private readonly HotelManagementDbContext _context;
+        private readonly ILogger<AccessController> _logger;
+
+        public AccessController(HotelManagementDbContext context, ILogger<AccessController> logger)
+        {
+            _context = context;
+            _logger = logger;
+        }
 
         // GET: Access/Login
         [AllowAnonymous]
@@ -38,16 +44,16 @@ namespace Hotel_Management_System.Controllers
 
                 if (user != null)
                 {
-                    // Use PasswordHelper to verify password
-                    bool isPasswordValid = PasswordHelper.VerifyPassword(modelLogin.Password, user.PasswordHash);
+                    // Validate password
+                    bool isPasswordValid = BCrypt.Net.BCrypt.Verify(modelLogin.Password, user.PasswordHash);
 
                     if (isPasswordValid)
                     {
                         var claims = new List<Claim>
                         {
-                            new(ClaimTypes.NameIdentifier, user.Email),
-                            new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
-                            new(ClaimTypes.Role, user.Role)
+                            new Claim(ClaimTypes.NameIdentifier, user.Email),
+                            new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+                            new Claim(ClaimTypes.Role, user.Role)
                         };
 
                         var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -105,13 +111,13 @@ namespace Hotel_Management_System.Controllers
                     return View(model);
                 }
 
-                // Hash the password before saving
-                string hashedPassword = PasswordHelper.HashPassword(model.Password);
+                // Hash the password
+                string hashedPassword = BCrypt.Net.BCrypt.HashPassword(model.Password);
 
-                // Check how many admins exist in the database
+                // Check the number of admins in the database
                 int adminCount = _context.Users.Count(u => u.Role == "Admin");
 
-                // Allow only 4 admins; others become guests
+                // Limit to 4 Admins; others become Guests
                 string assignedRole = (adminCount < 4) ? "Admin" : "Guest";
 
                 var user = new User

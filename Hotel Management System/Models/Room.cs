@@ -13,17 +13,16 @@ namespace Hotel_Management_System.Models
         public required string RoomNumber { get; set; }
 
         [Required]
-        public required string Category { get; set; } // Standard, Deluxe, Suite
+        public required string Category { get; set; }
 
         [Required]
-        public required string Status { get; set; } // Vacant, Occupied, Under Maintenance
+        public required string Status { get; set; }
 
         [Required]
-        [Column(TypeName = "decimal(10,2)")] 
+        [Column(TypeName = "decimal(10,2)")]
         public decimal PricePerNight { get; set; }
 
-
-        // Navigation property for bookings
+        // Navigation Property (One Room has many Bookings)
         public virtual List<Booking>? Bookings { get; set; }
     }
 }
