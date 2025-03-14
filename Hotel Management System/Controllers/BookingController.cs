@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Hotel_Management_System.Models;
+using Hotel_Management_System.Services;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,18 +12,19 @@ namespace Hotel_Management_System.Controllers
     public class BookingController : Controller
     {
         private readonly HotelManagementDbContext _context;
+        private readonly PayMongoService _payMongoService;
 
-        public BookingController(HotelManagementDbContext context)
+        public BookingController(HotelManagementDbContext context, PayMongoService payMongoService)
         {
             _context = context;
+            _payMongoService = payMongoService;
         }
 
-        // ✅ Allow guests to book rooms
         [AllowAnonymous]
         [HttpGet]
         public IActionResult Create()
         {
-            var rooms = _context.Rooms.ToList();
+            var rooms = _context.Rooms.Where(r => r.Status == "Available").ToList();
             ViewBag.Rooms = rooms;
             ViewBag.RoomPrices = rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
             return View();
@@ -31,7 +33,7 @@ namespace Hotel_Management_System.Controllers
         [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(Booking booking)
+        public async Task<IActionResult> Create(Booking booking)
         {
             if (!ModelState.IsValid)
             {
@@ -44,35 +46,79 @@ namespace Hotel_Management_System.Controllers
             if (room == null)
             {
                 ModelState.AddModelError("RoomId", "Invalid Room ID.");
-                ViewBag.Rooms = _context.Rooms.ToList();
-                ViewBag.RoomPrices = _context.Rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
                 return View(booking);
             }
 
             if (booking.CheckInDate >= booking.CheckOutDate)
             {
                 ModelState.AddModelError("", "Check-in date must be before Check-out date.");
-                ViewBag.Rooms = _context.Rooms.ToList();
-                ViewBag.RoomPrices = _context.Rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
                 return View(booking);
             }
 
-            booking.GuestName ??= "Guest";
-            booking.TotalPrice = CalculateTotalPrice(room.PricePerNight, booking.CheckInDate, booking.CheckOutDate);
+            int totalDays = Math.Max(1, (booking.CheckOutDate - booking.CheckInDate).Days);
+            booking.TotalPrice = room.PricePerNight * totalDays;
             booking.Status = "Pending";
 
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Booking submitted successfully!";
-            return RedirectToAction("Index", "Home"); // ✅ Redirect to guest dashboard
+            // **Redirect to payment gateway**
+            string? paymentIntent = await _payMongoService.CreatePayment(booking.TotalPrice, "PHP", "gcash");
+
+            if (string.IsNullOrEmpty(paymentIntent))
+            {
+                TempData["ErrorMessage"] = "Failed to create payment intent.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            return Redirect(paymentIntent);
         }
 
-        // ✅ Authentication required for managing bookings
+        [AllowAnonymous]
+        [HttpGet]
+        public IActionResult Payment(int bookingId)
+        {
+            var booking = _context.Bookings.Include(b => b.Room).FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking == null) return NotFound();
+
+            return View(booking);
+        }
+
+        [AllowAnonymous]
+        [HttpPost]
+        public async Task<IActionResult> ProcessPayment(int bookingId, string paymentMethod)
+        {
+            var booking = _context.Bookings.Include(b => b.Room).FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking == null) return NotFound();
+
+            var paymentResponse = await _payMongoService.CreatePayment(booking.TotalPrice, "PHP", paymentMethod);
+
+            if (paymentResponse == null)
+            {
+                TempData["ErrorMessage"] = "Payment failed. Please try again.";
+                return RedirectToAction("Payment", new { bookingId });
+            }
+
+            booking.Status = "Paid"; // Mark as Paid
+            _context.SaveChanges();
+
+            TempData["SuccessMessage"] = "Payment successful! Your booking is confirmed.";
+            return RedirectToAction("Confirmation", new { bookingId });
+        }
+
+        [HttpGet]
+        public IActionResult Confirmation(int bookingId)
+        {
+            var booking = _context.Bookings.Include(b => b.Room).FirstOrDefault(b => b.BookingId == bookingId);
+            if (booking == null) return NotFound();
+
+            return View(booking);
+        }
+
         [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult DashboardBooking()
         {
-            var bookings = _context.Bookings.Include(b => b.Room).ToList();
+            var bookings = _context.Bookings.Include(b => b.Room).Where(b => b.Status == "Paid").ToList();
             return RedirectToAction("Dashboard", "FrontDesk");
         }
 
@@ -80,10 +126,15 @@ namespace Hotel_Management_System.Controllers
         [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult ConfirmBooking(int bookingId)
         {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+            var booking = _context.Bookings.Include(b => b.Room).FirstOrDefault(b => b.BookingId == bookingId);
             if (booking == null) return NotFound();
 
             booking.Status = "Confirmed";
+            if (booking.Room != null)
+            {
+                booking.Room.Status = "Booked";
+            }
+
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking confirmed!";
@@ -101,60 +152,21 @@ namespace Hotel_Management_System.Controllers
                 return RedirectToAction("Dashboard", "FrontDesk");
             }
 
-            _context.Bookings.Remove(booking); 
+            _context.Bookings.Remove(booking);
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking has been permanently canceled.";
             return RedirectToAction("Dashboard", "FrontDesk");
         }
 
-
-        [HttpPost]
-        [Authorize(Roles = "Admin, FrontDesk")]
-        public IActionResult ConfirmCheckIn(int bookingId)
+        [Authorize(Roles = "Admin")] // Only Admins can reset bookings
+        public IActionResult ResetBookings()
         {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
-            if (booking == null || booking.Status != "Confirmed")
-                return NotFound();
-
-            booking.Status = "Checked-In";
-            booking.CheckedInAt = DateTime.Now;
-
-            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
-            if (room != null)
-                room.Status = "Occupied";
-
+            _context.Bookings.RemoveRange(_context.Bookings);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Guest has been checked in successfully!";
-            return RedirectToAction("Dashboard", "FrontDesk");
-        }
-
-        [HttpPost]
-        [Authorize(Roles = "Admin, FrontDesk")]
-        public IActionResult ConfirmCheckOut(int bookingId)
-        {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
-            if (booking == null || booking.Status != "Checked-In")
-                return NotFound();
-
-            booking.Status = "Checked-Out";
-            booking.CheckedOutAt = DateTime.Now;
-
-            var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
-            if (room != null)
-                room.Status = "Vacant";
-
-            _context.SaveChanges();
-
-            TempData["SuccessMessage"] = "Guest has been checked out successfully!";
-            return RedirectToAction("Dashboard", "FrontDesk");
-        }
-
-        private static decimal CalculateTotalPrice(decimal pricePerNight, DateTime checkInDate, DateTime checkOutDate)
-        {
-            int totalDays = (checkOutDate - checkInDate).Days;
-            return totalDays > 0 ? pricePerNight * totalDays : pricePerNight;
+            TempData["SuccessMessage"] = "All bookings have been deleted.";
+            return RedirectToAction("Dashboard", "FrontDesk"); // Change this to where you want to go
         }
     }
 }

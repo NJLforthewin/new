@@ -1,0 +1,27 @@
+﻿@model List<Hotel_Management_System.Models.Room>
+
+@{
+    ViewData["Title"] = "Available Rooms";
+}
+
+<h2>Available Rooms</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Category</th>
+            <th>Price Per Night</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@room.RoomNumber</td>
+                <td>@room.Category</td>
+                <td>@room.PricePerNight</td>
+            </tr>
+        }
+    </tbody>
+</table>

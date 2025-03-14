@@ -6,24 +6,24 @@
 
 <h2>Create Booking</h2>
 
-<form asp-action="Create" method="post">
+<form id="bookingForm" asp-action="Create" method="post">
     @Html.AntiForgeryToken()
 
     <div class="form-group">
         <label asp-for="GuestName" class="control-label">Guest Name</label>
-        <input asp-for="GuestName" class="form-control" />
+        <input asp-for="GuestName" class="form-control" required />
         <span asp-validation-for="GuestName" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="Email" class="control-label">Email</label>
-        <input asp-for="Email" class="form-control" type="email" />
+        <input asp-for="Email" class="form-control" type="email" required />
         <span asp-validation-for="Email" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="PhoneNumber" class="control-label">Phone Number</label>
-        <input asp-for="PhoneNumber" class="form-control" type="tel" />
+        <input asp-for="PhoneNumber" class="form-control" type="tel" required />
         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
     </div>
 
@@ -37,13 +37,13 @@
 
     <div class="form-group">
         <label asp-for="CheckInDate" class="control-label">Check-In Date</label>
-        <input asp-for="CheckInDate" class="form-control" type="date" />
+        <input asp-for="CheckInDate" class="form-control" type="date" required />
         <span asp-validation-for="CheckInDate" class="text-danger"></span>
     </div>
 
     <div class="form-group">
         <label asp-for="CheckOutDate" class="control-label">Check-Out Date</label>
-        <input asp-for="CheckOutDate" class="form-control" type="date" />
+        <input asp-for="CheckOutDate" class="form-control" type="date" required />
         <span asp-validation-for="CheckOutDate" class="text-danger"></span>
     </div>
 
@@ -58,7 +58,7 @@
     </div>
 
     <div class="form-group">
-        <button type="submit" class="btn btn-primary">Submit</button>
+        <button type="submit" class="btn btn-primary">Proceed to Payment</button>
     </div>
 </form>
 
@@ -70,6 +70,6 @@
 @section Scripts {
     @await Html.PartialAsync("_ValidationScriptsPartial")
 
-    <!-- Load external JavaScript -->
-    <script src="~/js/site.js"></script> <!-- Changed from booking.js to site.js -->
+    <!-- Use your existing script file -->
+    <script src="~/js/site.js"></script>
 }

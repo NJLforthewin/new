@@ -1,0 +1,33 @@
+﻿@{
+    Layout = "~/Views/Shared/BookingLayout.cshtml";
+}
+
+@model List<Hotel_Management_System.Models.Room>
+
+@{
+    ViewData["Title"] = "Booked Rooms";
+}
+
+<h2>Booked Rooms</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Price Per Night</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@room.RoomNumber</td>
+                <td>@room.Category</td>
+                <td><span class="badge badge-danger">@room.Status</span></td>
+                <td>$@room.PricePerNight</td>
+            </tr>
+        }
+    </tbody>
+</table>

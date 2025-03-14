@@ -1,0 +1,42 @@
+﻿@{
+    Layout = "~/Views/Shared/BookingLayout.cshtml";
+}
+
+@model List<Hotel_Management_System.Models.Room>
+
+@{
+    ViewData["Title"] = "Rooms Overview";
+}
+
+<h2>Rooms Overview</h2>
+
+<div class="btn-group mb-3">
+    <a href="@Url.Action("AvailableRooms", "Room")" class="btn btn-success">Available Rooms</a>
+    <a href="@Url.Action("BookedRooms", "Room")" class="btn btn-danger">Booked Rooms</a>
+</div>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Room Number</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Price Per Night</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in Model)
+        {
+            <tr>
+                <td>@room.RoomNumber</td>
+                <td>@room.Category</td>
+                <td>
+                    <span class="badge @(room.Status == "Vacant" ? "badge-success" : "badge-danger")">
+                        @room.Status
+                    </span>
+                </td>
+                <td>$@room.PricePerNight</td>
+            </tr>
+        }
+    </tbody>
+</table>
