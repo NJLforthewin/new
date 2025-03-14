@@ -1,14 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using Hotel_Management_System.Models;
 using Microsoft.EntityFrameworkCore;
+using Hotel_Management_System.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace Hotel_Management_System.Controllers
 {
-    [Authorize(Roles = "Admin, FrontDesk")]
     public class BookingController : Controller
     {
         private readonly HotelManagementDbContext _context;
@@ -18,6 +17,8 @@ namespace Hotel_Management_System.Controllers
             _context = context;
         }
 
+        // ✅ Allow guests to book rooms
+        [AllowAnonymous]
         [HttpGet]
         public IActionResult Create()
         {
@@ -27,6 +28,7 @@ namespace Hotel_Management_System.Controllers
             return View();
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult Create(Booking booking)
@@ -62,16 +64,12 @@ namespace Hotel_Management_System.Controllers
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Booking submitted and is now pending confirmation.";
-            return RedirectToAction("Index", "Home");
+            TempData["SuccessMessage"] = "Booking submitted successfully!";
+            return RedirectToAction("Index", "Home"); // ✅ Redirect to guest dashboard
         }
 
-        private static decimal CalculateTotalPrice(decimal pricePerNight, DateTime checkInDate, DateTime checkOutDate)
-        {
-            int totalDays = (checkOutDate - checkInDate).Days;
-            return totalDays > 0 ? pricePerNight * totalDays : pricePerNight;
-        }
-
+        // ✅ Authentication required for managing bookings
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult DashboardBooking()
         {
             var bookings = _context.Bookings.Include(b => b.Room).ToList();
@@ -79,6 +77,7 @@ namespace Hotel_Management_System.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult ConfirmBooking(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
@@ -92,19 +91,26 @@ namespace Hotel_Management_System.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult CancelBooking(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
-            if (booking == null) return NotFound();
+            if (booking == null)
+            {
+                TempData["ErrorMessage"] = "Booking not found!";
+                return RedirectToAction("Dashboard", "FrontDesk");
+            }
 
-            booking.Status = "Pending";
+            _context.Bookings.Remove(booking); 
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Booking status reverted to Pending.";
+            TempData["SuccessMessage"] = "Booking has been permanently canceled.";
             return RedirectToAction("Dashboard", "FrontDesk");
         }
 
+
         [HttpPost]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult ConfirmCheckIn(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
@@ -125,6 +131,7 @@ namespace Hotel_Management_System.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult ConfirmCheckOut(int bookingId)
         {
             var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
@@ -142,6 +149,12 @@ namespace Hotel_Management_System.Controllers
 
             TempData["SuccessMessage"] = "Guest has been checked out successfully!";
             return RedirectToAction("Dashboard", "FrontDesk");
+        }
+
+        private static decimal CalculateTotalPrice(decimal pricePerNight, DateTime checkInDate, DateTime checkOutDate)
+        {
+            int totalDays = (checkOutDate - checkInDate).Days;
+            return totalDays > 0 ? pricePerNight * totalDays : pricePerNight;
         }
     }
 }
