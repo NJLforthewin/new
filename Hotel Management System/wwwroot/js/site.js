@@ -34,9 +34,8 @@
     checkInInput.addEventListener("change", calculateTotalPrice);
     checkOutInput.addEventListener("change", calculateTotalPrice);
 
- 
     bookingForm.addEventListener("submit", function (event) {
-        event.preventDefault(); 
+        event.preventDefault();
 
         var totalAmount = parseFloat(totalPriceInput.value);
         if (!totalAmount || totalAmount <= 0) {
@@ -44,15 +43,15 @@
             return;
         }
 
-        fetch("/Payment/CreatePaymentIntent", {
+        fetch("/api/Payment/CreatePaymentIntent", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ amount: totalAmount })
+            body: JSON.stringify({ amount: totalAmount, paymentMethod: "card" })
         })
             .then(response => response.json())
             .then(data => {
-                if (data.paymentUrl) {
-                    window.location.href = data.paymentUrl; 
+                if (data.redirectUrl) {
+                    window.location.href = data.redirectUrl;
                 } else {
                     alert("Payment failed. Please try again.");
                 }

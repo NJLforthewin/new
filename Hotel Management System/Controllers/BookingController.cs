@@ -37,21 +37,21 @@ namespace Hotel_Management_System.Controllers
         {
             if (!ModelState.IsValid)
             {
-                ViewBag.Rooms = _context.Rooms.ToList();
-                ViewBag.RoomPrices = _context.Rooms.ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
+                ViewBag.Rooms = _context.Rooms.Where(r => r.Status == "Available").ToList();
+                ViewBag.RoomPrices = ((List<Room>)ViewBag.Rooms).ToDictionary(r => r.RoomId.ToString(), r => r.PricePerNight);
                 return View(booking);
             }
 
             var room = _context.Rooms.FirstOrDefault(r => r.RoomId == booking.RoomId);
-            if (room == null)
+            if (room == null || room.Status != "Available")
             {
-                ModelState.AddModelError("RoomId", "Invalid Room ID.");
+                ModelState.AddModelError("RoomId", "Room is unavailable or does not exist.");
                 return View(booking);
             }
 
             if (booking.CheckInDate >= booking.CheckOutDate)
             {
-                ModelState.AddModelError("", "Check-in date must be before Check-out date.");
+                ModelState.AddModelError("", "Check-in date must be before check-out date.");
                 return View(booking);
             }
 
@@ -62,12 +62,11 @@ namespace Hotel_Management_System.Controllers
             _context.Bookings.Add(booking);
             _context.SaveChanges();
 
-            // **Redirect to payment gateway**
             string? paymentIntent = await _payMongoService.CreatePayment(booking.TotalPrice, "PHP", "gcash");
 
             if (string.IsNullOrEmpty(paymentIntent))
             {
-                TempData["ErrorMessage"] = "Failed to create payment intent.";
+                TempData["ErrorMessage"] = "Payment processing failed. Please try again.";
                 return RedirectToAction("Index", "Home");
             }
 
@@ -99,10 +98,15 @@ namespace Hotel_Management_System.Controllers
                 return RedirectToAction("Payment", new { bookingId });
             }
 
-            booking.Status = "Paid"; // Mark as Paid
+            booking.Status = "Paid";
+            if (booking.Room != null)
+            {
+                booking.Room.Status = "Booked";
+            }
+
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Payment successful! Your booking is confirmed.";
+            TempData["SuccessMessage"] = "Payment successful! Your booking is now confirmed.";
             return RedirectToAction("Confirmation", new { bookingId });
         }
 
@@ -138,35 +142,48 @@ namespace Hotel_Management_System.Controllers
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking confirmed!";
-            return RedirectToAction("Dashboard", "FrontDesk");
+            return RedirectToAction("DashboardBooking");
         }
 
         [HttpPost]
         [Authorize(Roles = "Admin, FrontDesk")]
         public IActionResult CancelBooking(int bookingId)
         {
-            var booking = _context.Bookings.FirstOrDefault(b => b.BookingId == bookingId);
+            var booking = _context.Bookings.Include(b => b.Room).FirstOrDefault(b => b.BookingId == bookingId);
             if (booking == null)
             {
                 TempData["ErrorMessage"] = "Booking not found!";
-                return RedirectToAction("Dashboard", "FrontDesk");
+                return RedirectToAction("DashboardBooking");
+            }
+
+            if (booking.Room != null)
+            {
+                booking.Room.Status = "Vacant";
             }
 
             _context.Bookings.Remove(booking);
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "Booking has been permanently canceled.";
-            return RedirectToAction("Dashboard", "FrontDesk");
+            return RedirectToAction("DashboardBooking");
         }
 
-        [Authorize(Roles = "Admin")] // Only Admins can reset bookings
+        [Authorize(Roles = "Admin")]
         public IActionResult ResetBookings()
         {
+            foreach (var booking in _context.Bookings.Include(b => b.Room))
+            {
+                if (booking.Room != null)
+                {
+                    booking.Room.Status = "Vacant";
+                }
+            }
+
             _context.Bookings.RemoveRange(_context.Bookings);
             _context.SaveChanges();
 
             TempData["SuccessMessage"] = "All bookings have been deleted.";
-            return RedirectToAction("Dashboard", "FrontDesk"); // Change this to where you want to go
+            return RedirectToAction("DashboardBooking");
         }
     }
 }

@@ -1,0 +1,16 @@
+﻿@{
+    ViewData["Title"] = "Payment Receipt";
+}
+
+<h2>Payment Receipt</h2>
+
+<div style="border: 1px solid #ccc; padding: 15px; border-radius: 8px; width: 50%; background-color: #f9f9f9;">
+    <p><strong>Payment Intent ID:</strong> @ViewBag.PaymentIntentId</p>
+    <p><strong>Amount Paid:</strong> PHP @ViewBag.Amount</p>
+    <p><strong>Status:</strong> <span style="color: @(ViewBag.Status == "succeeded" ? "green" : "red");">@ViewBag.Status</span></p>
+    <p><strong>Transaction Date:</strong> @ViewBag.TransactionDate</p>
+</div>
+
+<a href="/" style="display: inline-block; margin-top: 10px; padding: 10px 15px; background-color: #007bff; color: white; text-decoration: none; border-radius: 5px;">Back to Home</a>
+
+<a href="/">Back to Home</a>
